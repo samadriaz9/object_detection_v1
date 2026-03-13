@@ -1,0 +1,8 @@
+names:
+- e.coli
+nc: 1
+# Use absolute path so Ultralytics doesn't prepend its datasets_dir (e.g. Ecoli_Web/datasets)
+path: D:/UET Mardan Lectures/AI Course Content/object_detection_01
+train: object_detection_dataset/train.txt
+val: object_detection_dataset/val.txt
+test: object_detection_dataset/test.txt

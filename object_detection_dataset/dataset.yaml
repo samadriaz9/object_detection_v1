@@ -1,0 +1,7 @@
+names:
+- e.coli
+nc: 1
+path: object_detection_dataset
+test: test.txt
+train: train.txt
+val: val.txt

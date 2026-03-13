@@ -1,0 +1,4 @@
+# Flask app for YOLOv8 (yolov8n.pt)
+flask>=3.0.0
+ultralytics>=8.0.0
+opencv-python-headless>=4.8.0

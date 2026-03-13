@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOLOv8 Object Detection</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      background: #1a1a1a;
+      color: #e0e0e0;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    p { color: #999; margin-bottom: 1.5rem; }
+    form {
+      background: #2a2a2a;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    input[type="file"] {
+      display: block;
+      margin-bottom: 1rem;
+      color: #ccc;
+    }
+    .row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .row label { margin-bottom: 0; }
+    input[type="number"] {
+      width: 80px;
+      padding: 0.4rem;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #e0e0e0;
+    }
+    button {
+      background: #0d6efd;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button:hover { background: #0b5ed7; }
+    .result {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+    .result img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+    .error { color: #f66; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>YOLOv8 Object Detection</h1>
+  <p>Upload an image to run detection with <code>yolov8n.pt</code>.</p>
+
+  <form id="detectForm">
+    <label for="image">Image</label>
+    <input type="file" id="image" name="image" accept=".jpg,.jpeg,.png,.webp,.bmp" required>
+
+    <div class="row">
+      <label for="conf">Confidence threshold</label>
+      <input type="number" id="conf" name="conf" value="0.25" min="0.01" max="0.99" step="0.01">
+    </div>
+
+    <button type="submit" id="btn">Detect</button>
+  </form>
+
+  <div class="result">
+    <p id="status"></p>
+    <img id="output" alt="Detection result" style="display: none;">
+    <p id="err" class="error" style="display: none;"></p>
+  </div>
+
+  <script>
+    document.getElementById("detectForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const fd = new FormData(form);
+      const btn = document.getElementById("btn");
+      const status = document.getElementById("status");
+      const output = document.getElementById("output");
+      const err = document.getElementById("err");
+
+      output.style.display = err.style.display = "none";
+      err.textContent = "";
+      status.textContent = "Running detection…";
+      btn.disabled = true;
+
+      try {
+        const r = await fetch("/predict", { method: "POST", body: fd });
+        const blob = await r.blob();
+        if (!r.ok) {
+          const t = await blob.text();
+          throw new Error(t || "Detection failed");
+        }
+        output.src = URL.createObjectURL(blob);
+        output.style.display = "block";
+        status.textContent = "Done. Result below.";
+      } catch (e) {
+        err.textContent = e.message;
+        err.style.display = "block";
+        status.textContent = "";
+      }
+      btn.disabled = false;
+    };
+  </script>
+</body>
+</html>
